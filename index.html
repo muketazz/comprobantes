@@ -194,6 +194,7 @@
 </head>
 <body>
 
+
   <!-- Botón de descarga (no se incluye en el PDF) -->
   <button class="btn-download" onclick="descargarPDF()">
     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
@@ -211,6 +212,7 @@
     <!-- Encabezado: logo izquierda / empresa derecha -->
     <div class="header">
       <div class="logo">
+    
       </div>
       <div class="header-right">
         <div class="company-name">Andres Arriaga SRL</div>
@@ -250,7 +252,10 @@
         <div class="importe-value-box" id="campo-importe">$ —</div>
       </div>
 
-      <div class="stamp-row"></div>
+
+      <div class="stamp-row">
+        
+      </div>
 
     </div>
 
@@ -329,6 +334,7 @@
         hayFaltantes = true;
       }
 
+      // Fecha en la franja secundaria
       document.getElementById('subheader-fecha').textContent = formatearFecha(fecha) || '—';
 
       if (hayFaltantes) {
@@ -336,53 +342,24 @@
       }
     }
 
-    // 5. Generar y descargar el PDF — con comprobante centrado en la hoja
+    // 5. Generar y descargar el PDF
     function descargarPDF() {
       const btn = document.querySelector('.btn-download');
       btn.disabled    = true;
       btn.textContent = 'Generando PDF…';
 
-      // Creamos un wrapper del ancho de A4 a 96dpi (794px)
-      // con el comprobante centrado dentro usando flexbox
-      const wrapper = document.createElement('div');
-      wrapper.style.cssText = [
-        'width: 794px',
-        'min-height: 100px',
-        'background: #ffffff',
-        'display: flex',
-        'justify-content: center',
-        'align-items: flex-start',
-        'padding: 40px 0',
-        'font-family: Arial, Helvetica, sans-serif',
-      ].join('; ');
-
-      // Clonamos el comprobante dentro del wrapper
-      const clone = document.getElementById('comprobante').cloneNode(true);
-      // Fijamos un ancho exacto para que no se estire al 100% del wrapper
-      clone.style.width    = '600px';
-      clone.style.maxWidth = '600px';
-      clone.style.flex     = 'none';
-      wrapper.appendChild(clone);
-
-      // Lo agregamos al DOM (oculto visualmente)
-      wrapper.style.position = 'absolute';
-      wrapper.style.left     = '-9999px';
-      wrapper.style.top      = '0';
-      document.body.appendChild(wrapper);
-
       html2pdf()
         .set({
-          margin:      0,
+          margin:      [12, 12, 12, 12],
           filename:    'comprobante-pago.pdf',
           image:       { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: 794 },
-          jsPDF:       { unit: 'px', format: [794, 1123], orientation: 'portrait' },
+          html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+          jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' },
           pagebreak:   { mode: 'avoid-all' }
         })
-        .from(wrapper)
+        .from(document.getElementById('comprobante'))
         .save()
         .then(() => {
-          document.body.removeChild(wrapper);
           btn.disabled = false;
           btn.innerHTML = `
             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
